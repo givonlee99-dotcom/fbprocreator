@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Detail Ebook</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+    <header class="navbar">
+      <div class="logo">FBPro<span style="font-style: italic;color: orange;">Creator</span></div>
+
+      <nav id="navMenu">
+        <a href="/landing.html">Tentang Web</a>
+        <a href="/marketplace.html">Gallery</a>
+        <a href="/privacy-policy.html">Privasi</a>
+      </nav>
+
+      <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </header>
+
+
+<h1 id="title"></h1>
+
+<h3 id="creator"></h3>
+
+<img id="cover" width="200">
+
+<br><br>
+
+<button id="downloadBtn">Download</button>
+<footer>Copyright © 2026 <a href="http://localhost:3000/" style="color: #38bdf8; text-decoration: none;">FBPro<span style="font-style: italic;color: orange;">Creator</span></a></footer>
+<script>
+
+async function loadDetail(){
+
+const id = window.location.pathname.split("/").pop()
+
+const res = await fetch("/api/ebooks")
+
+const data = await res.json()
+
+const ebook = data.find(e => e.id == id)
+
+if(!ebook){
+document.body.innerHTML="Ebook tidak ditemukan"
+return
+}
+
+document.getElementById("title").innerText = ebook.title
+
+document.getElementById("creator").innerText =
+"Creator : " + ebook.creator
+
+document.getElementById("cover").src =
+"/uploads/covers/" + ebook.cover
+
+document.getElementById("downloadBtn").onclick = function(){
+
+window.location.href="/download/"+ebook.id
+
+}
+
+}
+
+loadDetail()
+
+</script>
+
+</body>
+</html>

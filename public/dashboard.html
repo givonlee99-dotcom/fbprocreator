@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard Creator</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#1a120b,#3b2a21,#1a120b);
+color:white;
+min-height:100vh;
+}
+
+/* HEADER */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 40px;
+}
+
+.header h1{
+margin:0;
+}
+
+.btnHome{
+padding:10px 18px;
+border-radius:20px;
+border:none;
+background:#e6b17e;
+cursor:pointer;
+font-weight:bold;
+}
+
+/* SEARCH */
+
+.searchBox{
+padding:0 40px;
+margin-bottom:30px;
+}
+
+.searchBox input{
+padding:10px;
+border-radius:6px;
+border:none;
+width:200px;
+}
+
+.searchBox button{
+padding:10px 18px;
+border:none;
+border-radius:6px;
+background:#e6b17e;
+cursor:pointer;
+margin-left:10px;
+font-weight:bold;
+}
+
+/* GRID */
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:30px;
+padding:40px;
+}
+
+/* CARD */
+
+.card{
+background:#ffffff10;
+backdrop-filter:blur(10px);
+border-radius:16px;
+padding:20px;
+text-align:center;
+transition:.4s;
+animation:fadeUp .6s ease;
+}
+
+.card:hover{
+transform:translateY(-10px) scale(1.03);
+box-shadow:0 20px 40px rgba(0,0,0,.5);
+}
+
+/* COVER */
+
+.card img{
+width:120px;
+margin-bottom:15px;
+}
+
+/* BUTTON */
+
+.downloadBtn{
+display:inline-block;
+margin-top:10px;
+padding:8px 16px;
+border-radius:20px;
+background:#e6b17e;
+color:black;
+text-decoration:none;
+font-weight:bold;
+}
+
+/* ANIMATION */
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(30px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<h1>Dashboard Creator</h1>
+
+<button class="btnHome" onclick="window.location.href='/'">
+Beranda
+</button>
+
+</div>
+
+<div class="searchBox">
+
+<input id="creatorName" placeholder="Nama Creator">
+
+<button onclick="loadDashboard()">
+Lihat Ebook
+</button>
+
+</div>
+
+<div id="ebookList" class="grid"></div>
+
+<script>
+
+async function loadDashboard(){
+
+const name = document.getElementById("creatorName").value
+
+if(!name){
+alert("Masukkan nama creator")
+return
+}
+
+const res = await fetch("/api/creator/"+name)
+
+const data = await res.json()
+
+const box = document.getElementById("ebookList")
+
+box.innerHTML=""
+
+if(data.length === 0){
+box.innerHTML="<p>Tidak ada ebook</p>"
+return
+}
+
+data.forEach(e=>{
+
+box.innerHTML += `
+<div class="card">
+
+<img src="/uploads/covers/${e.cover}">
+
+<h3>${e.title}</h3>
+
+<p>Creator : ${e.creator}</p>
+
+<a class="downloadBtn" href="/download/${e.id}">
+Download
+</a>
+
+</div>
+`
+
+})
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Marketplace Ebook</title>
+
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+
+  <body>
+    <!-- HEADER -->
+         <header class="topbar">
+      <div class="brand"><span style="color: #38bdf8;">FBPro</span><span style="color: orange; font-style: italic;">Creator </span> Gallery</div>
+
+    
+    </header>
+
+    <!-- SLIDER COVER -->
+
+    <section
+      class="slider-section"
+      style="background-image:url(assets/store.gif);"
+    >
+      <div class="slider-track" id="sliderTrack">
+        <!-- slider akan diisi javascript -->
+      </div>
+
+
+       <div class="tutorialSection">
+        <button id="btnTutorial" class="btnTutorial">
+          Cara Download Gratis
+        </button>
+      </div>
+
+    </section>
+
+
+    <!-- HERO EBOOK TERBARU -->
+
+    <section class="heroSection">
+      <div id="hero"></div>
+    
+
+
+  <button onclick="window.location.href = '/'" style="padding: 6px 8px; border-radius: 18px;">Beranda</button>
+</section>
+
+
+    <!-- POPUP TUTORIAL -->
+
+    <div id="popup">
+      <div class="popupBox">
+        <span class="closePopup" id="closePopup">✕</span>
+
+        <h2>Cara Download Ebook</h2>
+
+        <p>
+          <br />1. Klik GetLink <br />2. Pilih Whatch Ads untuk Gratis <br />3.
+          Klik Continou <br />4. Klik Skip Ads sampai 3 iklan @1 detik<br />5. Klik Open
+          <br />6. File siap di download🚀
+        </p>
+
+        <div class="imgScroll">
+          <img src="assets/tipsDOWNLOAD.jpg" />
+          <img src="assets/tipsDOWNLOAD2.jpg" />
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+
+
+<div id="previewPopup" class="preview-popup">
+
+  <div class="preview-box">
+
+    <button class="close-btn" onclick="closePreview()">✕</button>
+
+    <iframe id="previewFrame"></iframe>
+
+  </div>
+
+</div>
+    <footer>Copyright © 2026 <a href="http://localhost:3000/" style="color: #38bdf8; text-decoration: none;">FBPro<span style="font-style: italic;color: orange;">Creator</span></a></footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="/js/marketplace.js"></script>
+<script>
+
+const btnTutorial = document.getElementById("btnTutorial");
+const popup = document.getElementById("popup");
+const closePopup = document.getElementById("closePopup");
+
+btnTutorial.addEventListener("click", () => {
+  popup.style.display = "flex";
+});
+
+closePopup.addEventListener("click", () => {
+  popup.style.display = "none";
+});
+
+</script>
+  </body>
+</html>

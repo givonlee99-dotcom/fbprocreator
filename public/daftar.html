@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Pendaftaran Creator FunnelWeb</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+      body {
+        font-family: Poppins;
+        background: #0f172a;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      .formBox {
+        background: #1e293b;
+        padding: 40px;
+        border-radius: 12px;
+        width: 420px;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: none;
+        border-radius: 6px;
+      }
+
+      button {
+        width: 100%;
+        padding: 14px;
+        background: #e6b17e;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .result {
+        margin-top: 20px;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="formBox">
+      <h2>Pendaftaran Creator <br>FunnelWeb</h2>
+
+      <form id="formDaftar">
+        <input type="text" name="nama" placeholder="Nama Lengkap" required />
+
+        <input type="date" name="tgl_lahir" required />
+
+        <input type="email" name="email" placeholder="Email" required />
+
+        <input type="text" name="facebook" placeholder="Link Facebook" />
+
+        <input type="text" name="instagram" placeholder="Link Instagram" />
+
+        <input type="text" name="wa" placeholder="Nomor WhatsApp" />
+<a href="http://localhost:3000/privacy-policy.html" style="font-style: italic;color:aliceblue; font-size: smaller;text-decoration: none;">Jika anda memutuskan bergabung di komunitas maka anda telah dianggap bersedia memenuhi kebijakan privasi sebagai Creator dan Kontributor FBPro</a><br><br>
+        <button type="submit">Daftar Sekarang</button>
+      </form>
+
+      <div class="result" id="result"></div>
+    </div>
+
+    <script>
+      document
+        .getElementById("formDaftar")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const data = {
+            nama: this.nama.value,
+            tgl_lahir: this.tgl_lahir.value,
+            email: this.email.value,
+            facebook: this.facebook.value,
+            instagram: this.instagram.value,
+            wa: this.wa.value,
+          };
+
+          const res = await fetch("/daftar-member", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await res.json();
+
+          document.getElementById("result").innerHTML = `
+<h3>Pendaftaran Berhasil, Ingat! Catat kode lisensi anda</h3>
+<p>Kode Lisensi Anda:</p>
+<b>${result.license}</b>
+`;
+        });
+    </script>
+  </body>
+</html>
