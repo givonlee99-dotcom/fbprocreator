@@ -37,16 +37,20 @@ async function loadEbooks() {
 
   <h3>${heroBook.title}</h3>
 
+  <p class="creator">
+  Creator :
+  <a href="/creator.html?name=${heroBook.creator}">
+  ${heroBook.creator}
+  </a>
+  </p>
+
   <div class="heroButtons">
 
     <a class="btn" href="/download/${heroBook.id}">
       Download
     </a>
 
- <button class="btn btnDetail"
-onclick="openDetail('${heroBook.id}')">
-Detail
-</button>
+
 
   </div>
 
@@ -56,13 +60,6 @@ Detail
     }
 
     /* =========================
-DETAIL EBOOK PAGE
-========================= */
-
-    function openDetail(id) {
-      window.location.href = "/ebook/" + id;
-    }
-    /* =========================
     SLIDER
     ========================= */
 
@@ -70,6 +67,8 @@ DETAIL EBOOK PAGE
       const covers = ebooks
         .map(
           (e) => `
+
+<div class="sliderItem">
 
 <div class="ebook-mockup sliderBook"
 onclick="window.location='/download/${e.id}'">
@@ -83,12 +82,21 @@ onclick="window.location='/download/${e.id}'">
 
 </div>
 
-`,
+<p class="creator">
+<a href="/creator.html?name=${e.creator}">
+${e.creator}
+</a>
+</p>
+
+</div>
+
+`
         )
         .join("");
 
       slider.innerHTML = covers + covers;
     }
+
   } catch (err) {
     console.log("Gagal load ebook:", err);
   }
@@ -96,9 +104,14 @@ onclick="window.location='/download/${e.id}'">
 
 loadEbooks();
 
+/* =========================
+DETAIL PAGE
+========================= */
+
 function openDetail(id) {
   window.location.href = "/ebook/" + id;
 }
+
 /* =========================
 POPUP TUTORIAL
 ========================= */
@@ -145,7 +158,6 @@ function previewEbook(id) {
 
   if (!popup || !frame) return;
 
-  // reset dulu supaya reload
   frame.src = "";
 
   setTimeout(() => {
@@ -164,10 +176,12 @@ function closePreview() {
   if (frame) frame.src = "";
 }
 
+/* =========================
+DOWNLOAD COUNT
+========================= */
+
 async function getDownload(id) {
   const res = await fetch("/api/downloads/" + id);
-
   const data = await res.json();
-
   return data.total;
 }

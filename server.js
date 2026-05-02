@@ -23,6 +23,19 @@ ANTI SPAM DOWNLOAD
 
 const ipLimit = {};
 
+
+/* =========================
+EBOOK DETAIL PAGE
+========================= */
+
+app.get("/ebook/:id", (req, res) => {
+
+  res.sendFile(
+    path.join(__dirname, "public", "ebook.html")
+  );
+
+});
+
 /* =========================
 MIDDLEWARE
 ========================= */
@@ -31,6 +44,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use("/uploads", express.static("uploads"));
+
+
+
+
 
 /* =========================
 AUTO CREATE FILES
@@ -317,4 +334,33 @@ SERVER
 
 app.listen(PORT, () => {
   console.log("Server running http://localhost:" + PORT);
+});
+
+
+/* =========================
+CREATOR PROFILE
+========================= */
+
+app.get("/api/creator/:name", (req, res) => {
+
+  const creator = req.params.name;
+
+  const ebooks = readJSON(DATA_FILE);
+  const downloads = readJSON(DOWNLOAD_FILE);
+
+  const list = ebooks
+    .filter(e => e.creator.toLowerCase() === creator.toLowerCase())
+    .map(e => {
+
+      const total = downloads.filter(d => d.id === e.id).length;
+
+      return {
+        ...e,
+        downloads: total
+      };
+
+    });
+
+  res.json(list);
+
 });

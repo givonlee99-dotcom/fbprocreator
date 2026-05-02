@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<head>
+  <title>Creator</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span style="color:#38bdf8;">FBPro</span>
+    <span style="color:orange;font-style:italic;">Creator</span>
+  </div>
+</header>
+
+<section class="creatorHeader">
+  <div class="creatorAvatar" id="creatorAvatar"></div>
+
+  <div class="creatorInfo">
+    <h2 id="creatorName">Creator</h2>
+
+    <div class="creatorStats">
+      <div class="stat">
+        <span id="totalEbooks">0</span>
+        <label>Ebooks</label>
+      </div>
+
+      <div class="stat">
+        <span id="totalDownloads">0</span>
+        <label>Downloads</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="creatorBooks">
+  <h3>Ebook Creator</h3>
+
+  <div id="ebookList" class="ebookGrid"></div>
+</section>
+
+<script>
+const params = new URLSearchParams(location.search)
+const creator = params.get("name")
+
+document.getElementById("creatorName").innerText = creator
+
+fetch("/api/creator/" + creator)
+.then(r=>r.json())
+.then(data=>{
+
+  const box = document.getElementById("ebookList")
+
+  let totalDownload = 0
+
+  data.forEach(e=>{
+
+    totalDownload += e.downloads || 0
+
+    box.innerHTML += `
+    <div class="ebookCard">
+
+      <img src="/uploads/covers/${e.cover}">
+
+      <h4>${e.title}</h4>
+
+      <p class="downloadCount">
+      ${e.downloads || 0} Downloads
+      </p>
+
+      <div class="ebookButtons">
+        <a class="btn" href="/download/${e.id}">
+        Download
+        </a>
+
+        <a class="btn btnDetail" href="/ebook/${e.id}">
+        Detail
+        </a>
+      </div>
+
+    </div>
+    `
+  })
+
+  document.getElementById("totalEbooks").innerText = data.length
+  document.getElementById("totalDownloads").innerText = totalDownload
+
+})
+</script>
+
+</body>
+</html>
