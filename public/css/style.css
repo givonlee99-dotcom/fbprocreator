@@ -1971,4 +1971,8 @@ DETAIL EBOOK
   display:flex;
   gap:14px;
 }
+button:hover {
+  transform: scale(1.05);
+  transition: 0.3s;
+}
 
