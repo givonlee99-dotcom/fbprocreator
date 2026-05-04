@@ -27,10 +27,23 @@ body {
   color: #fff;
   min-height: 100vh;
   margin:0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg,#0f172a,#1e293b,#020617);
   color:#f1f5f9;
   background: linear-gradient(135deg, #0f172a, #1e293b);
+  font-family: 'Poppins', sans-serif;
+  color: white;
+}
+h1 {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+p {
+  color: #cbd5e1;
+}
+
+.container {
+  text-align: center;
+  padding: 100px 20px;
 }
 
 /* =========================
