@@ -8,9 +8,12 @@ const multer = require("multer");
 const path = require("path");
 const axios = require("axios");
 
+// 🔥 CLOUDINARY
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MAX_UPLOAD = 10;
 
 /* =========================
 ANTI CRASH GLOBAL
@@ -22,6 +25,16 @@ process.on("uncaughtException", (err) => {
 
 process.on("unhandledRejection", (err) => {
   console.error("🔥 PROMISE ERROR:", err);
+});
+
+/* =========================
+CLOUDINARY CONFIG
+========================= */
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
 });
 
 /* =========================
@@ -41,15 +54,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* =========================
-AUTO CREATE FILES & FOLDER
+AUTO CREATE FILES
 ========================= */
 
 try {
-  fs.mkdirSync(path.join(__dirname, "uploads", "covers"), { recursive: true });
-
   [DATA_FILE, DOWNLOAD_FILE, MEMBER_FILE, VIEW_FILE].forEach((file) => {
     if (!fs.existsSync(file)) {
       fs.writeFileSync(file, "[]");
@@ -60,7 +70,7 @@ try {
 }
 
 /* =========================
-HELPER (ANTI CRASH)
+HELPER
 ========================= */
 
 const readJSON = (file) => {
@@ -82,48 +92,21 @@ const writeJSON = (file, data) => {
   }
 };
 
-function generateLicense() {
-  return (
-    "FW-" +
-    Date.now().toString().slice(-6) +
-    "-" +
-    Math.floor(Math.random() * 999999)
-  );
-}
-
 /* =========================
-WHATSAPP (SAFE)
+UPLOAD CLOUDINARY
 ========================= */
 
-async function kirimWA(data) {
-  try {
-    await axios.post("https://api.callmebot.com/whatsapp.php", {
-      phone: "6282354730849",
-      text: `Creator: ${data.nama} (${data.email})`,
-      apikey: "APIKEYANDA",
-    });
-  } catch (err) {
-    console.log("WA gagal:", err.message);
-  }
-}
-
-/* =========================
-UPLOAD CONFIG (SAFE)
-========================= */
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "uploads", "covers"));
-  },
-  filename: (req, file, cb) => {
-    const safeName = file.originalname.replace(/\s/g, "_");
-    cb(null, Date.now() + "-" + safeName);
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "ebook-covers",
+    allowed_formats: ["jpg", "png", "jpeg"],
   },
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 /* =========================
@@ -163,7 +146,8 @@ app.post("/upload-ebook", upload.single("cover"), (req, res) => {
       title,
       tutorial,
       download,
-      cover: req.file ? req.file.filename : "",
+      // 🔥 INI YANG PENTING (URL CLOUDINARY)
+      cover: req.file ? req.file.path : "",
       date: new Date(),
     };
 
