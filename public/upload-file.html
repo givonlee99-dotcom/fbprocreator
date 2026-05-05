@@ -83,23 +83,47 @@
 </div>
 
 <!-- SCRIPT -->
-<script src="/js/upload.js"></script>
-
-<!-- PREVIEW IMAGE SCRIPT -->
 <script>
-  const inputFile = document.querySelector("input[name='cover']");
-  const preview = document.getElementById("previewImage");
+const inputFile = document.querySelector("input[name='cover']");
+const preview = document.getElementById("previewImage");
 
-  if (inputFile) {
-    inputFile.addEventListener("change", () => {
-      const file = inputFile.files[0];
+if (inputFile) {
+  inputFile.addEventListener("change", () => {
+    const file = inputFile.files[0];
 
-      if (file) {
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = "block";
-      }
-    });
-  }
+    if (!file) return;
+
+    // 🔥 VALIDASI TYPE
+    if (!file.type.startsWith("image/")) {
+      alert("Harus upload gambar!");
+      inputFile.value = "";
+      preview.style.display = "none";
+      return;
+    }
+
+    // 🔥 VALIDASI SIZE (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Ukuran max 5MB");
+      inputFile.value = "";
+      preview.style.display = "none";
+      return;
+    }
+
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+  });
+}
+</script>
+  <script>
+const form = document.getElementById("uploadForm");
+const btn = document.querySelector(".btn-upload");
+
+if (form) {
+  form.addEventListener("submit", () => {
+    btn.innerText = "Uploading...";
+    btn.disabled = true;
+  });
+}
 </script>
 
 </body>
