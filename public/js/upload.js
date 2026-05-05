@@ -4,7 +4,6 @@ INIT
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("uploadForm");
-
   if (!form) return;
 
   form.addEventListener("submit", handleUpload);
@@ -19,33 +18,44 @@ async function handleUpload(e) {
 
   const form = e.target;
   const formData = new FormData(form);
-
   const submitBtn = form.querySelector("button[type='submit']");
 
+  /* =========================
+  VALIDASI
+  ========================= */
+
+  const title = formData.get("title");
+  const download = formData.get("download");
+  const license = formData.get("license");
+  const cover = formData.get("cover");
+
+  if (!title || !download || !license) {
+    alert("Semua field wajib diisi!");
+    return;
+  }
+
+  if (!cover || cover.size === 0) {
+    alert("Cover wajib diupload!");
+    return;
+  }
+
+  // 🔥 VALIDASI FILE TYPE
+  if (!cover.type.startsWith("image/")) {
+    alert("File harus berupa gambar!");
+    return;
+  }
+
+  // 🔥 VALIDASI SIZE
+  if (cover.size > 5 * 1024 * 1024) {
+    alert("Ukuran max 5MB");
+    return;
+  }
+
   try {
-    // 🔥 disable tombol biar tidak double submit
+    // 🔥 disable tombol setelah validasi lolos
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.innerText = "Uploading...";
-    }
-
-    /* =========================
-    VALIDASI DASAR
-    ========================= */
-
-    const title = formData.get("title");
-    const download = formData.get("download");
-    const license = formData.get("license");
-    const cover = formData.get("cover");
-
-    if (!title || !download || !license) {
-      alert("Semua field wajib diisi!");
-      return;
-    }
-
-    if (!cover || cover.size === 0) {
-      alert("Cover wajib diupload!");
-      return;
     }
 
     /* =========================
@@ -66,13 +76,15 @@ async function handleUpload(e) {
     if (data.success) {
       alert("✅ Upload berhasil!");
 
-      // reset form
       form.reset();
 
-      // redirect ke home
-      window.location.href = "/";
+      // delay biar user lihat notif
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 500);
+
     } else {
-      alert("❌ " + data.message);
+      alert("❌ " + (data.message || "Upload gagal"));
     }
 
   } catch (err) {
@@ -82,7 +94,7 @@ async function handleUpload(e) {
     // aktifkan tombol lagi
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.innerText = "Upload";
+      submitBtn.innerText = "Upload Ebook";
     }
   }
 }
