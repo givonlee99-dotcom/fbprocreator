@@ -1,69 +1,106 @@
 <!doctype html>
-<html>
-  <head>
-    <title>Upload eBook FB Pro</title>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload eBook FB Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="/css/style.css" />
-  </head>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
 
-  <body>
-    <div class="upload-container">
-      <!-- LEFT IMAGE -->
+<body>
 
-      <div class="upload-left">
-        <img
-          src="https://images.unsplash.com/photo-1556745757-8d76bdb6984b"
-          alt="success"
-        />
+<div class="upload-container">
+
+  <!-- LEFT IMAGE -->
+  <div class="upload-left">
+    <img
+      src="https://images.unsplash.com/photo-1556745757-8d76bdb6984b"
+      alt="upload"
+    >
+  </div>
+
+  <!-- RIGHT FORM -->
+  <div class="upload-right">
+
+    <h1>Upload eBook FB Pro</h1>
+
+    <p class="subtitle">
+      Upload eBook terbaru dan bagikan strategimu di 
+      Funnel<span style="font-style: italic; color: orange">Web</span>
+    </p>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+
+      <!-- LICENSE -->
+      <label>Kode Lisensi Creator</label>
+      <input type="text" name="license" required placeholder="Masukkan kode lisensi">
+
+      <!-- CREATOR (optional karena server ambil dari license) -->
+      <label>Creator</label>
+      <input type="text" name="creator" placeholder="(opsional)">
+
+      <!-- TITLE -->
+      <label>Judul eBook</label>
+      <input type="text" name="title" required placeholder="Judul ebook">
+
+      <!-- TUTORIAL -->
+      <label>Link Tutorial (optional)</label>
+      <input type="url" name="tutorial" placeholder="https://...">
+
+      <!-- DOWNLOAD -->
+      <label>Link Download (WAJIB Linkvertise)</label>
+      <input type="url" name="download" required placeholder="https://linkvertise...">
+
+      <!-- COVER -->
+      <label>Cover eBook</label>
+      <input type="file" name="cover" accept="image/*" required>
+
+      <!-- PREVIEW IMAGE -->
+      <img id="previewImage" style="display:none;margin-top:10px;max-width:150px;border-radius:8px;" />
+
+      <!-- BUTTON -->
+      <div class="upload-buttons">
+
+        <button type="submit" class="btn-upload">
+          Upload Ebook
+        </button>
+
+        <a
+          href="https://linkvertise.com/?publisherClosed=true&affiliate_id=1314520"
+          target="_blank"
+          class="btn-shortlink"
+        >
+          Daftar Shortlink
+        </a>
+
       </div>
 
-      <!-- RIGHT FORM -->
+    </form>
 
-      <div class="upload-right">
-        <h1>Upload eBook FB Pro</h1>
+  </div>
 
-        <p class="subtitle">
-          Upload eBook FB Pro terbaru dan bagikan strategi suksesmu di <br />
-          Funnel<span style="font-style: italic; color: orange">Web</span>
-        </p>
+</div>
 
-        <form id="uploadForm" enctype="multipart/form-data">
-          <label>Kode Lisensi Creator</label>
-          <input type="text" name="license" required />
+<!-- SCRIPT -->
+<script src="/js/upload.js"></script>
 
-          <label>Creator</label>
-          <textarea name="creator" required></textarea>
+<!-- PREVIEW IMAGE SCRIPT -->
+<script>
+  const inputFile = document.querySelector("input[name='cover']");
+  const preview = document.getElementById("previewImage");
 
-          <label>Judul file(eBook, Novel, Cerpen dll)</label>
-          <textarea name="title" required></textarea>
+  if (inputFile) {
+    inputFile.addEventListener("change", () => {
+      const file = inputFile.files[0];
 
-          <label>Link Tutorial,video, konten dll</label>
-          <textarea name="tutorial"></textarea>
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      }
+    });
+  }
+</script>
 
-          <label>Link Download</label>
-          <textarea name="download" required></textarea>
-
-          <label>Cover Ebook</label>
-          <input type="file" name="cover" required />
-
-
-          <div class="upload-buttons">
-            <button type="submit" class="btn-upload">Upload Ebook</button>
-
-            <a
-              href="https://linkvertise.com/?publisherClosed=true&affiliate_id=1314520"
-              target="_blank"
-              class="btn-shortlink"
-            >
-              Daftar Shortlink
-            </a>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <script src="/js/upload.js"></script>
-
-
-  </body>
+</body>
 </html>
