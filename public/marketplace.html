@@ -1,102 +1,199 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Marketplace Ebook</title>
+/* =========================
+INIT
+========================= */
 
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
+document.addEventListener("DOMContentLoaded", () => {
+  loadEbooks();
+  initPopup();
+});
 
-  <body>
-    <!-- HEADER -->
-         <header class="topbar">
-      <div class="brand"><span style="color: #38bdf8;">FBPro</span><span style="color: orange; font-style: italic;">Creator </span> Gallery</div>
+/* =========================
+CONFIG IMAGE
+========================= */
 
-    
-    </header>
+// 🔥 PRIORITAS: uploads → fallback ke images
+function getImagePath(file) {
+  if (!file) return "/images/default.png";
+  return `/uploads/covers/${file}`;
+}
 
-    <!-- SLIDER COVER -->
+/* =========================
+LOAD EBOOK
+========================= */
 
-    <section
-      class="slider-section"
-      style="background-image:url(images/store.gif);"
-    >
-      <div class="slider-track" id="sliderTrack">
-        <!-- slider akan diisi javascript -->
-      </div>
+async function loadEbooks() {
+  try {
+    const res = await fetch("/api/ebooks");
+    const data = await res.json();
 
+    const hero = document.getElementById("hero");
+    const slider = document.getElementById("sliderTrack");
 
-       <div class="tutorialSection">
-        <button id="btnTutorial" class="btnTutorial">
-          Cara Download Gratis
-        </button>
-      </div>
+    if (!data || !data.length) return;
 
-    </section>
+    const ebooks = [...data].reverse();
+    const heroBook = ebooks[0];
 
+    /* =========================
+    HERO
+    ========================= */
 
-    <!-- HERO EBOOK TERBARU -->
+    if (hero && heroBook) {
+      hero.innerHTML = `
+        <div class="heroBox">
 
-    <section class="heroSection">
-      <div id="hero"></div>
-    
+          <div class="ebook-mockup">
+            <div class="book-spine"></div>
+            <div class="book-pages"></div>
 
+            <div class="book-cover">
+              <img 
+                src="${getImagePath(heroBook.cover)}"
+                onerror="this.src='/images/default.png'"
+              >
+            </div>
+          </div>
 
-  <button onclick="window.location.href = '/'" style="padding: 6px 8px; border-radius: 18px;">Beranda</button>
-  
-</section>
+          <h3>${heroBook.title}</h3>
 
-    <!-- POPUP TUTORIAL -->
+          <p class="creator">
+            Creator :
+            <a href="/creator.html?name=${heroBook.creator}">
+              ${heroBook.creator}
+            </a>
+          </p>
 
-    <div id="popup">
-      <div class="popupBox">
-        <span class="closePopup" id="closePopup">✕</span>
+          <div class="heroButtons">
+            <a class="btn" href="/download/${heroBook.id}">
+              Download
+            </a>
+          </div>
 
-        <h2>Cara Download Ebook</h2>
-
-        <p>
-          <br />1. Klik GetLink <br />2. Pilih Whatch Ads untuk Gratis <br />3.
-          Klik Continou <br />4. Klik Skip Ads sampai 3 iklan @1 detik<br />5. Klik Open
-          <br />6. File siap di download🚀
-        </p>
-
-        <div class="imgScroll">
-          <img src="/images/tipsDOWNLOAD.jpg" />
-          <img src="/images/tipsDOWNLOAD2.jpg" />
         </div>
-      </div>
-    </div>
+      `;
+    }
 
-    <!-- FOOTER -->
+    /* =========================
+    SLIDER
+    ========================= */
 
+    if (slider) {
+      const covers = ebooks.map((e) => `
+        <div class="sliderItem">
 
-<div id="previewPopup" class="preview-popup">
+          <div class="ebook-mockup sliderBook"
+            onclick="window.location='/download/${e.id}'">
 
-  <div class="preview-box">
+            <div class="book-spine"></div>
+            <div class="book-pages"></div>
 
-    <button class="close-btn" onclick="closePreview()">✕</button>
+            <div class="book-cover">
+              <img 
+                src="${getImagePath(e.cover)}"
+                onerror="this.src='/images/default.png'"
+              >
+            </div>
 
-    <iframe id="previewFrame"></iframe>
+          </div>
 
-  </div>
+          <p class="creator">
+            <a href="/creator.html?name=${e.creator}">
+              ${e.creator}
+            </a>
+          </p>
 
-</div>
-    <footer>Copyright © 2026 <a href="http://fbprocreator.onrender.com" style="color: #38bdf8; text-decoration: none;">FBPro<span style="font-style: italic;color: orange;">Creator</span></a></footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="/js/marketplace.js"></script>
-<script>
+        </div>
+      `).join("");
 
-const btnTutorial = document.getElementById("btnTutorial");
-const popup = document.getElementById("popup");
-const closePopup = document.getElementById("closePopup");
+      slider.innerHTML = covers + covers;
+    }
 
-btnTutorial.addEventListener("click", () => {
+  } catch (err) {
+    console.log("Gagal load ebook:", err);
+  }
+}
+
+/* =========================
+DETAIL PAGE
+========================= */
+
+function openDetail(id) {
+  window.location.href = "/ebook/" + id;
+}
+
+/* =========================
+POPUP TUTORIAL
+========================= */
+
+function initPopup() {
+  const popup = document.getElementById("popup");
+  const btnTutorial = document.getElementById("btnTutorial");
+  const closePopup = document.getElementById("closePopup");
+
+  if (!popup) return;
+
+  if (btnTutorial) {
+    btnTutorial.onclick = () => {
+      popup.style.display = "flex";
+    };
+  }
+
+  if (closePopup) {
+    closePopup.onclick = () => {
+      popup.style.display = "none";
+    };
+  }
+
+  popup.addEventListener("click", (e) => {
+    if (e.target === popup) {
+      popup.style.display = "none";
+    }
+  });
+}
+
+/* =========================
+PREVIEW POPUP
+========================= */
+
+function previewEbook(id) {
+  const popup = document.getElementById("previewPopup");
+  const frame = document.getElementById("previewFrame");
+
+  if (!popup || !frame) return;
+
+  frame.src = "";
+
+  setTimeout(() => {
+    frame.src = "/flipbook/flipper.html?id=" + id;
+  }, 100);
+
   popup.style.display = "flex";
-});
+}
 
-closePopup.addEventListener("click", () => {
-  popup.style.display = "none";
-});
+function closePreview() {
+  const popup = document.getElementById("previewPopup");
+  const frame = document.getElementById("previewFrame");
 
-</script>
-  </body>
-</html>
+  if (popup) popup.style.display = "none";
+  if (frame) frame.src = "";
+}
+
+/* =========================
+DOWNLOAD COUNT (OPTIONAL)
+========================= */
+
+async function getDownload(id) {
+  try {
+    const res = await fetch("/api/downloads/" + id);
+    const data = await res.json();
+    return data.total;
+  } catch {
+    return 0;
+  }
+}
+
+/* =========================
+ANTI RIGHT CLICK
+========================= */
+
+document.addEventListener("contextmenu", (e) => e.preventDefault());
