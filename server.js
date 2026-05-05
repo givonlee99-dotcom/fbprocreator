@@ -32,9 +32,9 @@ CLOUDINARY CONFIG
 ========================= */
 
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
+  cloud_name: process.env.dvf8uk5tr,
+  api_key: process.env.275948988485589,
+  api_secret: process.env.B9mzVMD9nzKTkadTkqbbN2MXNR0,
 });
 
 /* =========================
