@@ -1,146 +1,199 @@
-<!doctype html>
-<html>
-  <head>
-    <title>FBProCreator - Belajar Facebook Pro</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Platform edukasi Facebook Pro untuk kreator Indonesia">
-    <link rel="stylesheet" href="/css/style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
-   
-  </head>
+/* =========================
+INIT
+========================= */
 
-  <body>
-    <header class="navbar">
-      <div class="logo">FBPro<span style="font-style: italic;color: orange;">Creator</span></div>
+document.addEventListener("DOMContentLoaded", () => {
+  loadEbooks();
+  initPopup();
+});
 
-      <nav id="navMenu">
-        <a href="/dashboard.html">Dashboard</a>
-        <a href="/landing.html">Tentang Web</a>
-        <a href="/marketplace.html">Gallery</a>
-        <a href="/privacy-policy.html">Privasi</a>
-      </nav>
+/* =========================
+CONFIG IMAGE
+========================= */
 
-      <div class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </header>
+// 🔥 PRIORITAS: uploads → fallback ke images
+function getImagePath(file) {
+  if (!file) return "/images/default.png";
+  return `/uploads/covers/${file}`;
+}
 
-    <section class="hero">
-          
-      <h1>Gallery <span style="color: #38bdf8;">FBPro</span><span style="font-style: italic;color: orange;">Creator</span></h1>
+/* =========================
+LOAD EBOOK
+========================= */
 
-      <p>Kumpulan Strategi konten FB Pro Gratis didapatkan untuk para Creator terdapat banyak strategi, trik dan tips yang yang terbukti menghasilkan disini adalah tempatnya ilmu dan rahasia konten menghasilkan yang dikupas para akademisi,suhu, mentor,idealistis maupun visioneris konten yang telah tergabung didalamnya.</p>
+async function loadEbooks() {
+  try {
+    const res = await fetch("/api/ebooks");
+    const data = await res.json();
 
-      <a class="btn" href="/marketplace.html"> Lihat Gallery Creator </a>
-    </section>
+    const hero = document.getElementById("hero");
+    const slider = document.getElementById("sliderTrack");
 
-   
-<section id="tentang">
-      <h2>Tentang <span style="color: beige;">Funnel</span><span style="color: orange; font-style: italic;">Web </span>Bisnis</h2>
+    if (!data || !data.length) return;
 
-      <p>
-        Website ini juga mengajak para Creator yang tergabung untuk mendapatkan penghasilan tercepat tanpa ribet, disini diberikan cara menggunakan Tools Rahasia bisnis online yang selama ini di cari banyak orang semua akan diberikan secara gratis bagi anggota yang tergabung silakan download panduan <a href="https://fbprocreator.onrender.com" style="font-style: italic;font-weight: bold;text-decoration: none; color: blue;">disini</a>
-      </p>
-    </section>
+    const ebooks = [...data].reverse();
+    const heroBook = ebooks[0];
 
-     <section id="tentang">
-      <h2>Tentang eBook</h2>
+    /* =========================
+    HERO
+    ========================= */
 
-      <p>
-        Gallery ini menampung kumpulan produk digital ebook berkualitas bisa didownload gratis 
-        dari strategi Facebook Professional Mode, mulai dari membangun followers
-        hingga monetisasi konten selain itu disini juga ada panduan untuk
-        menggunakan Funnelweb Bisnis agar pengunjung bisa mempelajari dan mempraktikkan langsung
-        cara-cara menghasilkan uang dengan tools yang disediakan.
-      </p>
-    </section>
-    <!-- HERO EBOOK TERBARU -->
+    if (hero && heroBook) {
+      hero.innerHTML = `
+        <div class="heroBox">
 
-    <section class="latestSection">
-      <h2>eBook<br>Terbitan Terbaru</h2>
-
-      <div id="latestEbooks"></div>
-      
-           <div id="ebooks"></div>
-     
-
-    </section>
-      
-
-    <!-- GRID MARKETPLACE -->
-
-    <div class="marquee">
-      <div class="marqueeText">
-        🔥 Strategi FB Pro 🔥 Monetisasi Facebook 🔥 Konten Viral 🔥 Followers
-        Organik 🔥 History dan Cerita 🔥 Bisnis penghasilan tercepat 🔥 Karya tulis lainnya 🔥 Tips Flatform lainnya 🔥
-        Edukasi & Motivasi
-      </div>
-    </div>
-        <section class="market-header">
-      <div class="brand"><span style="color: #38bdf8;">FBPro</span><span style="color: orange; font-style: italic;">Creator </span> Gallery</div>
-
-      <div class="stats">Total Download: <span id="downloadCount">0</span></div>
-    </section>
-    <footer>Copyright © 2026 <a href="https://github.com/givonlee99-dotcom/fbprocreator/blob/main/funnel.html/" style="color: #38bdf8; text-decoration: none;">FBPro<span style="font-style: italic;color: orange;">Creator</span></a></footer>
-
-    <div id="ebookPopup">
-      <div class="popupContent">
-        <span id="closePopup">✕</span>
-
-        <div class="popupGrid">
-          <div class="ebook-mockup popupBook">
+          <div class="ebook-mockup">
             <div class="book-spine"></div>
-
             <div class="book-pages"></div>
 
             <div class="book-cover">
-              <img id="popupCover" />
+              <img 
+                src="${getImagePath(heroBook.cover)}"
+                onerror="this.src='/images/default.png'"
+              >
             </div>
           </div>
 
-          <div class="popupInfo">
-            <h2 id="popupTitle"></h2>
+          <h3>${heroBook.title}</h3>
 
-            <p><b>Creator:</b> <span id="popupCreator"></span></p>
-
-            <a id="popupTutorial" target="_blank" class="btnTutorialPopup">
-              Tutorial FB Pro
+          <p class="creator">
+            Creator :
+            <a href="/creator.html?name=${heroBook.creator}">
+              ${heroBook.creator}
             </a>
+          </p>
 
-            <a id="popupDownload" class="btnDownloadPopup"> Download Ebook </a>
+          <div class="heroButtons">
+            <a class="btn" href="/download/${heroBook.id}">
+              Download
+            </a>
           </div>
+
         </div>
-      </div>
-    </div>
+      `;
+    }
 
+    /* =========================
+    SLIDER
+    ========================= */
 
-    
-    <!-- POPUP TUTORIAL -->
+    if (slider) {
+      const covers = ebooks.map((e) => `
+        <div class="sliderItem">
 
-    <div id="popup">
-      <div class="popupBox">
-        <span class="closePopup" id="closeTutorial">✕</span>
+          <div class="ebook-mockup sliderBook"
+            onclick="window.location='/download/${e.id}'">
 
-        <h2>Cara Download Ebook</h2>
+            <div class="book-spine"></div>
+            <div class="book-pages"></div>
 
-        <p>
-          <br />1. Klik GetLink <br />2. Pilih Whatch Ads untuk Gratis <br />3.
-          Klik Continou <br />4. Klik Skip Ads sampai 3 iklan @1 detik <br />5. Klik Open
-          <br />6. File siap di download🚀
-        </p>
+            <div class="book-cover">
+              <img 
+                src="${getImagePath(e.cover)}"
+                onerror="this.src='/images/default.png'"
+              >
+            </div>
 
-        <div class="imgScroll">
-          <img src="assets/tipsDOWNLOAD.jpg" />
-          <img src="assets/tipsDOWNLOAD2.jpg" />
+          </div>
+
+          <p class="creator">
+            <a href="/creator.html?name=${e.creator}">
+              ${e.creator}
+            </a>
+          </p>
+
         </div>
-      </div>
-    </div>
+      `).join("");
 
+      slider.innerHTML = covers + covers;
+    }
 
-    <script src="/js/marketplace.js"></script>
-    <script src="/js/index.js"></script>
-   
-  </body>
-</html>
+  } catch (err) {
+    console.log("Gagal load ebook:", err);
+  }
+}
+
+/* =========================
+DETAIL PAGE
+========================= */
+
+function openDetail(id) {
+  window.location.href = "/ebook/" + id;
+}
+
+/* =========================
+POPUP TUTORIAL
+========================= */
+
+function initPopup() {
+  const popup = document.getElementById("popup");
+  const btnTutorial = document.getElementById("btnTutorial");
+  const closePopup = document.getElementById("closePopup");
+
+  if (!popup) return;
+
+  if (btnTutorial) {
+    btnTutorial.onclick = () => {
+      popup.style.display = "flex";
+    };
+  }
+
+  if (closePopup) {
+    closePopup.onclick = () => {
+      popup.style.display = "none";
+    };
+  }
+
+  popup.addEventListener("click", (e) => {
+    if (e.target === popup) {
+      popup.style.display = "none";
+    }
+  });
+}
+
+/* =========================
+PREVIEW POPUP
+========================= */
+
+function previewEbook(id) {
+  const popup = document.getElementById("previewPopup");
+  const frame = document.getElementById("previewFrame");
+
+  if (!popup || !frame) return;
+
+  frame.src = "";
+
+  setTimeout(() => {
+    frame.src = "/flipbook/flipper.html?id=" + id;
+  }, 100);
+
+  popup.style.display = "flex";
+}
+
+function closePreview() {
+  const popup = document.getElementById("previewPopup");
+  const frame = document.getElementById("previewFrame");
+
+  if (popup) popup.style.display = "none";
+  if (frame) frame.src = "";
+}
+
+/* =========================
+DOWNLOAD COUNT (OPTIONAL)
+========================= */
+
+async function getDownload(id) {
+  try {
+    const res = await fetch("/api/downloads/" + id);
+    const data = await res.json();
+    return data.total;
+  } catch {
+    return 0;
+  }
+}
+
+/* =========================
+ANTI RIGHT CLICK
+========================= */
+
+document.addEventListener("contextmenu", (e) => e.preventDefault());
