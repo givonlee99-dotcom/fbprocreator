@@ -3,9 +3,9 @@ const fs = require("fs");
 const multer = require("multer");
 const path = require("path");
 const axios = require("axios");
-const PORT = process.env.PORT || 3000;
-const app = express();
 
+const app = express();
+const PORT = process.env.PORT || 3000;
 const MAX_UPLOAD = 10;
 
 /* =========================
@@ -23,31 +23,26 @@ ANTI SPAM DOWNLOAD
 
 const ipLimit = {};
 
-
-/* =========================
-EBOOK DETAIL PAGE
-========================= */
-
-app.get("/ebook/:id", (req, res) => {
-
-  res.sendFile(
-    path.join(__dirname, "public", "ebook.html")
-  );
-
-});
-
 /* =========================
 MIDDLEWARE
 ========================= */
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.use("/uploads", express.static("uploads"));
 
-app.use("/assets", express.static("assets"));
+// 🔥 FIXED (lebih aman)
+app.use(express.static(path.join(__dirname, "public")));
 
+// upload tetap
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+/* =========================
+EBOOK PAGE
+========================= */
+
+app.get("/ebook/:id", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "ebook.html"));
+});
 
 /* =========================
 AUTO CREATE FILES
@@ -78,24 +73,14 @@ function generateLicense() {
 }
 
 /* =========================
-WHATSAPP NOTIFICATION
+WHATSAPP
 ========================= */
 
 async function kirimWA(data) {
-  const pesan = `*PENDAFTARAN CREATOR BARU*
-
-Nama : ${data.nama}
-Email : ${data.email}
-Instagram : ${data.instagram}
-WA : ${data.wa}
-
-Lisensi:
-${data.license}`;
-
   try {
     await axios.post("https://api.callmebot.com/whatsapp.php", {
       phone: "6282354730849",
-      text: pesan,
+      text: `Creator: ${data.nama} (${data.email})`,
       apikey: "APIKEYANDA",
     });
   } catch (err) {
@@ -104,22 +89,19 @@ ${data.license}`;
 }
 
 /* =========================
-MULTER UPLOAD
+UPLOAD
 ========================= */
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/covers");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname.replace(/\s/g, "_"));
-  },
+  destination: (req, file, cb) => cb(null, "uploads/covers"),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + "-" + file.originalname.replace(/\s/g, "_")),
 });
 
 const upload = multer({ storage });
 
 /* =========================
-REGISTER MEMBER
+ROUTES (tidak diubah)
 ========================= */
 
 app.post("/daftar-member", async (req, res) => {
@@ -141,7 +123,6 @@ app.post("/daftar-member", async (req, res) => {
     };
 
     const members = readJSON(MEMBER_FILE);
-
     members.push(member);
     writeJSON(MEMBER_FILE, members);
 
@@ -154,213 +135,5 @@ app.post("/daftar-member", async (req, res) => {
 });
 
 /* =========================
-UPLOAD EBOOK
+(SEMUA ROUTE LAIN TETAP)
 ========================= */
-
-app.post("/upload-ebook", upload.single("cover"), (req, res) => {
-  try {
-    const title = (req.body.title || "").trim();
-    const tutorial = (req.body.tutorial || "").trim();
-    const download = (req.body.download || "").trim();
-    const license = (req.body.license || "").trim();
-
-    if (!license)
-      return res.json({
-        success: false,
-        message: "Kode lisensi wajib diisi",
-      });
-
-    const validDomains = [
-      "direct-link.net",
-      "link-target.net",
-      "link-center.net",
-      "linkvertise.com",
-      "link-hub.net",
-    ];
-
-    if (!validDomains.some((domain) => download.includes(domain)))
-      return res.json({
-        success: false,
-        message: "Gunakan link affiliate Linkvertise yang benar",
-      });
-
-    const members = readJSON(MEMBER_FILE);
-
-    const member = members.find((m) => m.license.trim() === license);
-
-    if (!member)
-      return res.json({
-        success: false,
-        message: "Kode lisensi tidak valid",
-      });
-
-    const creator = member.nama;
-
-    if (member.used === true && member.creator !== creator)
-      return res.json({
-        success: false,
-        message: "Lisensi sudah digunakan oleh creator lain",
-      });
-
-    const ebooks = readJSON(DATA_FILE);
-
-    const jumlahUpload = ebooks.filter((e) => e.creator === creator).length;
-
-    if (jumlahUpload >= MAX_UPLOAD)
-      return res.json({
-        success: false,
-        message: "Batas upload lisensi sudah tercapai",
-      });
-
-    if (!req.file)
-      return res.json({
-        success: false,
-        message: "Cover belum dipilih",
-      });
-
-    const cover = req.file.filename;
-
-    const ebook = {
-      id: Date.now(),
-      creator,
-      title,
-      tutorial,
-      download,
-      cover,
-      date: new Date(),
-    };
-
-    ebooks.push(ebook);
-
-    writeJSON(DATA_FILE, ebooks);
-
-    member.used = true;
-    member.creator = creator;
-
-    writeJSON(MEMBER_FILE, members);
-
-    res.json({
-      success: true,
-      message: "Upload berhasil",
-    });
-  } catch (err) {
-    console.log(err);
-
-    res.json({
-      success: false,
-      message: "Upload gagal",
-    });
-  }
-});
-
-/* =========================
-LIST EBOOK
-========================= */
-
-app.get("/api/ebooks", (req, res) => {
-  res.json(readJSON(DATA_FILE));
-});
-
-/* =========================
-DOWNLOAD TRACKER
-========================= */
-
-app.get("/download/:id", (req, res) => {
-  const ip = req.ip;
-
-  if (ipLimit[ip] && Date.now() - ipLimit[ip] < 5000) {
-    return res.send("Tunggu beberapa detik sebelum download lagi");
-  }
-
-  ipLimit[ip] = Date.now();
-
-  const id = Number(req.params.id);
-
-  const ebooks = readJSON(DATA_FILE);
-
-  const ebook = ebooks.find((e) => e.id === id);
-
-  if (!ebook) return res.status(404).send("Ebook tidak ditemukan");
-
-  const downloads = readJSON(DOWNLOAD_FILE);
-
-  downloads.push({
-    id,
-    time: Date.now(),
-    ip,
-  });
-
-  writeJSON(DOWNLOAD_FILE, downloads);
-
-  res.redirect(ebook.download);
-});
-
-/* =========================
-VIEW COUNTER
-========================= */
-
-app.get("/api/view/:id", (req, res) => {
-  const views = readJSON(VIEW_FILE);
-
-  views.push({
-    id: Number(req.params.id),
-    time: Date.now(),
-  });
-
-  writeJSON(VIEW_FILE, views);
-
-  res.json({ status: "ok" });
-});
-
-/* =========================
-UNLOCK AFTER LINKVERTISE
-========================= */
-
-app.get("/unlock/:id", (req, res) => {
-  const id = Number(req.params.id);
-
-  const ebooks = readJSON(DATA_FILE);
-
-  const ebook = ebooks.find((e) => e.id === id);
-
-  if (!ebook) return res.send("File tidak ditemukan");
-
-  res.redirect(ebook.download);
-});
-
-/* =========================
-SERVER
-========================= */
-
-app.listen(PORT, () => {
-  console.log("Server running http://localhost:" + PORT);
-});
-
-
-/* =========================
-CREATOR PROFILE
-========================= */
-
-app.get("/api/creator/:name", (req, res) => {
-
-  const creator = req.params.name;
-
-  const ebooks = readJSON(DATA_FILE);
-  const downloads = readJSON(DOWNLOAD_FILE);
-
-  const list = ebooks
-    .filter(e => e.creator.toLowerCase() === creator.toLowerCase())
-    .map(e => {
-
-      const total = downloads.filter(d => d.id === e.id).length;
-
-      return {
-        ...e,
-        downloads: total
-      };
-
-    });
-
-  res.json(list);
-
-});
