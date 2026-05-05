@@ -28,13 +28,13 @@ process.on("unhandledRejection", (err) => {
 });
 
 /* =========================
-CLOUDINARY CONFIG
+CLOUDINARY CONFIG (FIXED)
 ========================= */
 
 cloudinary.config({
-  cloud_name: process.env.dvf8uk5tr,
-  api_key: process.env.275948988485589,
-  api_secret: process.env.B9mzVMD9nzKTkadTkqbbN2MXNR0,
+  cloud_name: process.env.CLOUD_NAME || "dvf8uk5tr",
+  api_key: process.env.API_KEY || "275948988485589",
+  api_secret: process.env.API_SECRET || "ISI_API_SECRET_KAMU",
 });
 
 /* =========================
@@ -53,6 +53,7 @@ MIDDLEWARE
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// static public
 app.use(express.static(path.join(__dirname, "public")));
 
 /* =========================
@@ -98,10 +99,11 @@ UPLOAD CLOUDINARY
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
+  params: async (req, file) => ({
     folder: "ebook-covers",
     allowed_formats: ["jpg", "png", "jpeg"],
-  },
+    public_id: Date.now() + "-" + file.originalname.replace(/\s/g, "_"),
+  }),
 });
 
 const upload = multer({
@@ -146,8 +148,7 @@ app.post("/upload-ebook", upload.single("cover"), (req, res) => {
       title,
       tutorial,
       download,
-      // 🔥 INI YANG PENTING (URL CLOUDINARY)
-      cover: req.file ? req.file.path : "",
+      cover: req.file ? req.file.path : "", // 🔥 URL Cloudinary
       date: new Date(),
     };
 
