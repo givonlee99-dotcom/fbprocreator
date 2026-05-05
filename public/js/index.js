@@ -11,14 +11,18 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================
-CONFIG IMAGE SOURCE
+CONFIG IMAGE SOURCE (FIX CLOUDINARY)
 ========================= */
 
-// 🔥 PRIORITAS: uploads → fallback ke images
 function getImagePath(file) {
   if (!file) return "/images/default.png";
 
-  // coba dari uploads dulu
+  // 🔥 jika sudah URL (Cloudinary / external)
+  if (typeof file === "string" && file.startsWith("http")) {
+    return file;
+  }
+
+  // 🔥 fallback ke local uploads (data lama)
   return `/uploads/covers/${file}`;
 }
 
@@ -33,17 +37,23 @@ async function loadLatestEbooks() {
 
     const latestBox = document.getElementById("latestEbooks");
 
-    if (!latestBox || !data.length) return;
+    if (!latestBox) return;
+
+    // 🔥 kalau kosong kasih info
+    if (!data || !data.length) {
+      latestBox.innerHTML = `<p style="opacity:.7">Belum ada ebook</p>`;
+      return;
+    }
 
     const ebooks = [...data].reverse().slice(0, 4);
 
     latestBox.innerHTML = ebooks.map((e) => `
       <div class="latestCard"
-        data-id="${e.id}"
-        data-title="${e.title}"
-        data-creator="${e.creator}"
-        data-cover="${e.cover}"
-        data-tutorial="${e.tutorial}">
+        data-id="${e.id || ""}"
+        data-title="${e.title || "Tanpa Judul"}"
+        data-creator="${e.creator || "Unknown"}"
+        data-cover="${e.cover || ""}"
+        data-tutorial="${e.tutorial || ""}">
 
         <div class="ebook-mockup">
           <div class="book-spine"></div>
@@ -53,6 +63,7 @@ async function loadLatestEbooks() {
             <img 
               src="${getImagePath(e.cover)}" 
               alt="${e.title}"
+              loading="lazy"
               onerror="this.src='/images/default.png'"
             >
           </div>
@@ -61,7 +72,10 @@ async function loadLatestEbooks() {
       </div>
     `).join("");
 
-    /* EVENT CLICK */
+    /* =========================
+    EVENT CLICK CARD
+    ========================= */
+
     document.querySelectorAll(".latestCard").forEach((card) => {
       card.addEventListener("click", () => {
         const id = card.dataset.id;
@@ -70,6 +84,7 @@ async function loadLatestEbooks() {
         const cover = card.dataset.cover;
         const tutorial = card.dataset.tutorial;
 
+        // 🔥 isi popup
         document.getElementById("popupTitle").innerText = title;
         document.getElementById("popupCreator").innerText = creator;
 
@@ -79,15 +94,30 @@ async function loadLatestEbooks() {
           popupCover.src = "/images/default.png";
         };
 
-        document.getElementById("popupTutorial").href = tutorial;
+        // 🔥 tutorial safe
+        const tutorialBtn = document.getElementById("popupTutorial");
+        if (tutorial) {
+          tutorialBtn.href = tutorial;
+          tutorialBtn.style.display = "inline-block";
+        } else {
+          tutorialBtn.style.display = "none";
+        }
+
+        // 🔥 download
         document.getElementById("popupDownload").href = "/download/" + id;
 
+        // 🔥 show popup
         document.getElementById("ebookPopup").style.display = "flex";
       });
     });
 
   } catch (err) {
-    console.error("Gagal load latest ebooks:", err);
+    console.error("❌ Gagal load latest ebooks:", err);
+
+    const latestBox = document.getElementById("latestEbooks");
+    if (latestBox) {
+      latestBox.innerHTML = `<p style="color:red">Gagal load data</p>`;
+    }
   }
 }
 
@@ -135,17 +165,10 @@ TUTORIAL POPUP
 ========================= */
 
 function initTutorialPopup() {
-  const btnTutorial = document.getElementById("btnTutorial");
   const popup = document.getElementById("popup");
   const closeTutorial = document.getElementById("closeTutorial");
 
   if (!popup) return;
-
-  if (btnTutorial) {
-    btnTutorial.addEventListener("click", () => {
-      popup.style.display = "flex";
-    });
-  }
 
   if (closeTutorial) {
     closeTutorial.addEventListener("click", () => {
