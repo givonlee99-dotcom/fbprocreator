@@ -1,3 +1,7 @@
+/* =========================
+INIT
+========================= */
+
 const express = require("express");
 const fs = require("fs");
 const multer = require("multer");
@@ -9,6 +13,18 @@ const PORT = process.env.PORT || 3000;
 const MAX_UPLOAD = 10;
 
 /* =========================
+ANTI CRASH GLOBAL
+========================= */
+
+process.on("uncaughtException", (err) => {
+  console.error("🔥 UNCAUGHT ERROR:", err);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("🔥 PROMISE ERROR:", err);
+});
+
+/* =========================
 DATABASE FILE
 ========================= */
 
@@ -18,50 +34,53 @@ const MEMBER_FILE = path.join(__dirname, "members.json");
 const VIEW_FILE = path.join(__dirname, "views.json");
 
 /* =========================
-ANTI SPAM DOWNLOAD
-========================= */
-
-const ipLimit = {};
-
-/* =========================
 MIDDLEWARE
 ========================= */
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 🔥 FIXED (lebih aman)
 app.use(express.static(path.join(__dirname, "public")));
-
-// upload tetap
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* =========================
-EBOOK PAGE
+AUTO CREATE FILES & FOLDER
 ========================= */
 
-app.get("/ebook/:id", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "ebook.html"));
-});
+try {
+  fs.mkdirSync(path.join(__dirname, "uploads", "covers"), { recursive: true });
+
+  [DATA_FILE, DOWNLOAD_FILE, MEMBER_FILE, VIEW_FILE].forEach((file) => {
+    if (!fs.existsSync(file)) {
+      fs.writeFileSync(file, "[]");
+    }
+  });
+} catch (err) {
+  console.error("Error init file:", err);
+}
 
 /* =========================
-AUTO CREATE FILES
+HELPER (ANTI CRASH)
 ========================= */
 
-if (!fs.existsSync("uploads/covers"))
-  fs.mkdirSync("uploads/covers", { recursive: true });
+const readJSON = (file) => {
+  try {
+    if (!fs.existsSync(file)) return [];
+    const data = fs.readFileSync(file, "utf-8");
+    return data ? JSON.parse(data) : [];
+  } catch (err) {
+    console.error("❌ Error baca JSON:", file);
+    return [];
+  }
+};
 
-[DATA_FILE, DOWNLOAD_FILE, MEMBER_FILE, VIEW_FILE].forEach((file) => {
-  if (!fs.existsSync(file)) fs.writeFileSync(file, "[]");
-});
-
-/* =========================
-HELPER
-========================= */
-
-const readJSON = (file) => JSON.parse(fs.readFileSync(file));
-const writeJSON = (file, data) =>
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+const writeJSON = (file, data) => {
+  try {
+    fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error("❌ Error write JSON:", file);
+  }
+};
 
 function generateLicense() {
   return (
@@ -73,7 +92,7 @@ function generateLicense() {
 }
 
 /* =========================
-WHATSAPP
+WHATSAPP (SAFE)
 ========================= */
 
 async function kirimWA(data) {
@@ -89,51 +108,102 @@ async function kirimWA(data) {
 }
 
 /* =========================
-UPLOAD
+UPLOAD CONFIG (SAFE)
 ========================= */
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/covers"),
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + "-" + file.originalname.replace(/\s/g, "_")),
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "uploads", "covers"));
+  },
+  filename: (req, file, cb) => {
+    const safeName = file.originalname.replace(/\s/g, "_");
+    cb(null, Date.now() + "-" + safeName);
+  },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB
+});
 
 /* =========================
-ROUTES (tidak diubah)
+ROUTES
 ========================= */
 
-app.post("/daftar-member", async (req, res) => {
+app.get("/ebook/:id", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "ebook.html"));
+});
+
+/* =========================
+API EBOOKS
+========================= */
+
+app.get("/api/ebooks", (req, res) => {
+  const data = readJSON(DATA_FILE);
+  res.json(data);
+});
+
+/* =========================
+UPLOAD EBOOK
+========================= */
+
+app.post("/upload-ebook", upload.single("cover"), (req, res) => {
   try {
-    const { nama, tgl_lahir, email, facebook, instagram, wa } = req.body;
+    const { license, creator, title, tutorial, download } = req.body;
 
-    const license = generateLicense();
+    if (!license || !title || !download) {
+      return res.json({ success: false, message: "Data tidak lengkap" });
+    }
 
-    const member = {
-      nama,
-      tgl_lahir,
-      email,
-      facebook,
-      instagram,
-      wa,
-      license,
-      used: false,
-      creator: null,
+    const ebooks = readJSON(DATA_FILE);
+
+    const newBook = {
+      id: Date.now(),
+      creator: creator || "Unknown",
+      title,
+      tutorial,
+      download,
+      cover: req.file ? req.file.filename : "",
+      date: new Date(),
     };
 
-    const members = readJSON(MEMBER_FILE);
-    members.push(member);
-    writeJSON(MEMBER_FILE, members);
+    ebooks.push(newBook);
+    writeJSON(DATA_FILE, ebooks);
 
-    await kirimWA(member);
-
-    res.json({ status: "success", license });
+    res.json({ success: true });
   } catch (err) {
-    res.status(500).json({ status: "error", message: err.message });
+    console.error("UPLOAD ERROR:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
 /* =========================
-(SEMUA ROUTE LAIN TETAP)
+DOWNLOAD TRACKING
 ========================= */
+
+app.get("/download/:id", (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const ebooks = readJSON(DATA_FILE);
+    const book = ebooks.find((e) => e.id === id);
+
+    if (!book) return res.send("Ebook tidak ditemukan");
+
+    const downloads = readJSON(DOWNLOAD_FILE);
+    downloads.push({ id, time: Date.now() });
+    writeJSON(DOWNLOAD_FILE, downloads);
+
+    res.redirect(book.download);
+  } catch (err) {
+    console.error("DOWNLOAD ERROR:", err);
+    res.send("Terjadi error");
+  }
+});
+
+/* =========================
+SERVER START
+========================= */
+
+app.listen(PORT, () => {
+  console.log("🚀 Server jalan di port", PORT);
+});
