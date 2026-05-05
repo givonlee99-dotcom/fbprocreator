@@ -30,7 +30,7 @@ async function loadEbooks() {
     <div class="book-pages"></div>
 
     <div class="book-cover">
-      <img src="/uploads/covers/${heroBook.cover}">
+      <img src="/images/covers/${heroBook.cover}">
     </div>
 
   </div>
