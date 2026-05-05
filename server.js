@@ -3,9 +3,9 @@ const fs = require("fs");
 const multer = require("multer");
 const path = require("path");
 const axios = require("axios");
-
+const PORT = process.env.PORT || 3000;
 const app = express();
-const PORT = 3000;
+
 const MAX_UPLOAD = 10;
 
 /* =========================
@@ -45,7 +45,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use("/uploads", express.static("uploads"));
 
-
+app.use("/assets", express.static("assets"));
 
 
 
