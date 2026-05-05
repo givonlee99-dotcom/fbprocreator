@@ -15,14 +15,14 @@ CONFIG IMAGE SOURCE (FIX CLOUDINARY)
 ========================= */
 
 function getImagePath(file) {
-  if (!file) return "/images/default.png";
+  if (!file) return "/images/brand.png"; // fallback
 
-  // 🔥 jika sudah URL (Cloudinary / external)
+  // 🔥 kalau dari Cloudinary (URL langsung)
   if (typeof file === "string" && file.startsWith("http")) {
     return file;
   }
 
-  // 🔥 fallback ke local uploads (data lama)
+  // 🔥 kalau dari upload lama (lokal)
   return `/uploads/covers/${file}`;
 }
 
