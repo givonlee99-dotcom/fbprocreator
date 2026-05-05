@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Download eBook Premium</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, sans-serif;
+}
+
+body{
+background:rgba(36, 5, 5, 1);
+color:white;
+overflow-x:hidden;
+}
+
+/* background glow */
+
+.glow{
+position:absolute;
+width:500px;
+height:500px;
+background:rgba(255,255,255,0.05);
+border-radius:50%;
+filter:blur(80px);
+animation:float 10s infinite alternate;
+}
+
+.g1{top:-150px;left:-150px;}
+.g2{bottom:-150px;right:-150px;}
+
+@keyframes float{
+from{transform:translateY(0);}
+to{transform:translateY(40px);}
+}
+
+/* HERO */
+
+.hero{
+max-width:900px;
+margin:120px auto 60px auto;
+text-align:center;
+padding:40px;
+}
+
+.hero h1{
+font-size:42px;
+margin-bottom:20px;
+}
+
+.hero p{
+font-size:18px;
+line-height:1.7;
+opacity:0.9;
+}
+
+/* MAIN SECTION */
+
+.main-section{
+display:flex;
+justify-content:center;
+margin-bottom:60px;
+}
+
+.wrapper{
+width:92%;
+max-width:1200px;
+margin:auto;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:30px;
+}
+
+/* GALLERY */
+
+.gallery{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(10px);
+padding:25px;
+border-radius:1px;
+max-height:850px;
+overflow-y:auto;
+}
+
+.gallery-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:25px;
+justify-items:center;
+}
+
+.gallery-grid img{
+width:170px;
+border-radius:1px;
+transition:0.3s;
+box-shadow:0 10px 25px rgba(0,0,0,0.35);
+}
+
+.gallery-grid img:hover{
+transform:translateY(-6px) scale(1.05);
+box-shadow:0 20px 40px rgba(0,0,0,0.5);
+}
+
+/* RIGHT CONTENT */
+
+.container{
+background:rgba(255, 255, 255, 0.717);
+color:#333;
+padding:30px;
+border-radius:1px;
+text-align:center;
+box-shadow:0 20px 40px rgba(0,0,0,0.4);
+}
+
+/* COVER */
+
+.cover{
+display:flex;
+justify-content:center;
+margin-bottom:20px;
+}
+
+.cover img{
+width:260px;
+max-width:85%;
+transition:0.3s;
+}
+
+.cover img:hover{
+transform:scale(1.05) rotateY(10deg);
+box-shadow:0 20px 40px rgba(0,0,0,0.35);
+}
+
+.rating{
+margin:10px 0;
+color:#f5b301;
+font-size:20px;
+}
+
+.counter{
+font-size:14px;
+color:#777;
+margin-bottom:10px;
+}
+
+.viewer{
+font-size:14px;
+color:#666;
+margin-bottom:10px;
+}
+
+.timer{
+color:#e74c3c;
+font-size:14px;
+margin-bottom:10px;
+}
+
+.description{
+font-size:15px;
+line-height:1.6;
+margin-bottom:15px;
+}
+
+/* BUTTON */
+
+.download-btn{
+padding:12px 25px;
+background:#ff7b00;
+color:white;
+border:none;
+border-radius:8px;
+font-size:16px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.download-btn:hover{
+background:#e66d00;
+transform:scale(1.05);
+}
+
+/* PROGRESS */
+
+.progress{
+width:100%;
+height:6px;
+background:#ddd;
+border-radius:5px;
+margin-top:10px;
+overflow:hidden;
+}
+
+.progress-bar{
+height:100%;
+width:0%;
+background:#27ae60;
+}
+
+/* COMMENT */
+
+.comment-box{
+margin-top:20px;
+font-size:14px;
+background:#f7f7f7;
+padding:15px;
+border-radius:10px;
+min-height:60px;
+}
+
+/* POPUP */
+
+.popup{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:10;
+}
+
+.popup-content{
+background:white;
+color:#333;
+width:95%;
+max-width:420px;
+border-radius:12px;
+padding:20px;
+text-align:center;
+animation:popup 0.3s;
+}
+
+@keyframes popup{
+from{transform:scale(0.8);opacity:0;}
+to{transform:scale(1);opacity:1;}
+}
+
+.image-box{
+height:200px;
+overflow-y:auto;
+border:1px solid #ddd;
+border-radius:8px;
+padding:10px;
+margin:15px 0;
+}
+
+.image-box img{
+width:100%;
+margin-bottom:10px;
+border-radius:6px;
+}
+
+/* DOWNLOAD ALERT */
+
+.download-alert{
+position:fixed;
+bottom:12px;
+left:50%;
+transform:translateX(-50%);
+width:92%;
+max-width:92%;
+background:white;
+color:#333;
+border-radius:12px;
+padding:10px 14px;
+display:none;
+align-items:center;
+gap:10px;
+box-shadow:0 8px 30px rgba(0,0,0,0.3);
+z-index:9999;
+animation:alertSlide 0.4s ease;
+}
+
+.alert-avatar img{
+width:38px;
+height:38px;
+border-radius:50%;
+}
+
+.alert-text{
+font-size:13px;
+line-height:1.4;
+}
+
+.alert-time{
+color:#888;
+font-size:11px;
+}
+
+@keyframes alertSlide{
+from{
+transform:translate(-50%,40px);
+opacity:0;
+}
+to{
+transform:translate(-50%,0);
+opacity:1;
+}
+}
+
+/* FOOTER */
+
+.footer{
+text-align:center;
+padding:30px;
+color:#ccc;
+font-size:14px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+.wrapper{
+grid-template-columns:1fr;
+}
+
+.gallery{
+max-height:260px;
+}
+
+.gallery-grid{
+grid-template-columns:repeat(2,1fr);
+}
+
+}
+
+.download-alert{
+position:fixed;
+bottom:14px;
+left:50%;
+transform:translateX(-50%);
+width:92%;
+max-width:500px;
+background:white;
+color:#333;
+border-radius:12px;
+padding:10px 14px;
+display:none;
+align-items:center;
+gap:10px;
+box-shadow:0 8px 30px rgba(0,0,0,0.3);
+z-index:9999;
+animation:alertSlide 0.4s ease;
+}
+
+.alert-avatar img{
+width:38px;
+height:38px;
+border-radius:50%;
+object-fit:cover;
+}
+
+.alert-text{
+font-size:13px;
+line-height:1.4;
+}
+
+.alert-time{
+color:#888;
+font-size:11px;
+}
+
+@keyframes alertSlide{
+from{
+transform:translate(-50%,40px);
+opacity:0;
+}
+to{
+transform:translate(-50%,0);
+opacity:1;
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="glow g1"></div>
+<div class="glow g2"></div>
+
+<section class="hero">
+<h1><span style="color: beige;">Funnel</span><span style="color: orange; font-style: italic;">Web </span></h1>
+<p>
+Landing page ini dirancang untuk membantu creator Facebook Pro
+meningkatkan followers, engagement, dan penghasilan melalui
+strategi konten yang bekerja didalam sistem algoritma Facebook.
+</p>
+</section>
+
+<section class="main-section">
+
+<div class="wrapper">
+
+<div class="gallery">
+
+<h3>Koleksi eBook</h3>
+
+<div class="gallery-grid">
+
+<a href="/marketplace.html"><img src="assets/1d.png"></a>
+<a href="/marketplace.html"><img src="assets/2d.png"></a>
+<a href="/marketplace.html"><img src="assets/3d.png"></a>
+<a href="/marketplace.html"><img src="assets/4d.png"></a>
+<a href="/marketplace.html"><img src="assets/5d.png"></a>
+<a href="/marketplace.html"><img src="assets/6d.png"></a>
+<a href="/marketplace.html"><img src="assets/7d.png"></a>
+<a href="/marketplace.html"><img src="assets/8d.png"></a>
+<a href="/marketplace.html"><img src="assets/9d.png"></a>
+<a href="/marketplace.html"><img src="assets/3dfollow.png"></a>
+
+</div>
+
+</div>
+
+<div class="container">
+
+<div class="cover">
+<img src="assets/funnelweb-cover3d.png">
+</div>
+
+<div class="rating">★★★★★</div>
+
+<div class="counter">
+<span id="downloadCount">2384</span> orang sudah download
+</div>
+
+<div class="viewer">
+👀 <span id="viewerCount">23</span> orang sedang melihat halaman ini
+</div>
+
+<div class="timer">
+⏳ Download gratis berakhir dalam <span id="countdown">10:00</span>
+</div>
+
+<div class="description">
+Pelajari strategi rahasia bagaimana konten Facebook Pro bisa menghasilkan uang dengan cepat dan algoritma bekerja untuk konten anda.
+</div>
+
+<button class="download-btn" onclick="openPopup()">
+Panduan Download Gratis!
+</button>
+
+<div class="progress">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="comment-box">
+💬 <span id="commentText">Ebook ini sangat membantu menaikkan followers saya!</span>
+<br>
+<b id="commentName">— Rudi, Creator</b>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="footer">
+<p>© 2026 FunnelWeb — All Rights Reserved</p>
+</section>
+<div class="download-alert" id="downloadAlert">
+
+<div class="alert-avatar">
+<img id="alertAvatar" src="assets/ff3.png">
+</div>
+
+
+<div class="alert-text">
+<b id="alertName">Budi</b> dari 
+<span id="alertCity">Jakarta</span>
+<br>
+📥 baru saja download ebook
+<br>
+<span class="alert-time" id="alertTime">3 detik lalu</span>
+</div>
+
+</div>
+
+<div class="popup" id="popup">
+
+<div class="popup-content">
+
+<h3>Cara Download</h3>
+
+<p>
+1. Klik tombol download dibawah<br>
+2. Klik GetLink<br>
+3. Pilih WATCH ADS lalu CONTINUE<br>
+4. Klik SKIP ADS 3 iklan<br>
+5. Klik OPEN untuk download ebook
+</p>
+
+<div class="image-box">
+
+<img src="assets/tipsDOWNLOAD.jpg">
+<img src="assets/tipsDOWNLOAD2.jpg">
+
+</div>
+
+<a href="https://link-target.net/1314520/Us8ADQiKrGpE">
+<button class="download-btn">
+Download eBook Sekarang
+</button>
+</a>
+
+</div>
+
+</div>
+<script>
+
+/* =========================
+   POPUP DOWNLOAD
+========================= */
+
+function openPopup(){
+document.getElementById("popup").style.display="flex";
+}
+
+window.onclick=function(event){
+let popup=document.getElementById("popup");
+if(event.target==popup){
+popup.style.display="none";
+}
+}
+
+
+/* =========================
+   COUNTDOWN TIMER
+========================= */
+
+let time = 600;
+
+setInterval(()=>{
+
+let minutes = Math.floor(time/60);
+let seconds = time % 60;
+
+seconds = seconds < 10 ? "0"+seconds : seconds;
+
+document.getElementById("countdown").innerHTML =
+minutes + ":" + seconds;
+
+time--;
+
+if(time < 0){
+time = 600;
+}
+
+},1000);
+
+
+/* =========================
+   PROGRESS BAR
+========================= */
+
+let progress = 0;
+
+setInterval(()=>{
+
+progress += Math.random()*10;
+
+if(progress > 100){
+progress = 0;
+}
+
+document.getElementById("progressBar").style.width =
+progress + "%";
+
+},800);
+
+
+/* =========================
+   FAKE DOWNLOAD ALERT
+========================= */
+
+const names = [
+"Budi","Rina","Andi","Siti",
+"Rahmat","Dewi","Fajar","Ayu"
+];
+
+const cities = [
+"Jakarta","Bandung","Surabaya",
+"Medan","Makassar","Jogja","Lombok","Banjarmasin"
+];
+
+const avatars = [
+"assets/ff3.png",
+"assets/ff4.png",
+"assets/ff5.png",
+"assets/ff6.png",
+"assets/ff7.png",
+"assets/ff8.png",
+"assets/ff9.png",
+"assets/ff10.png"
+];
+
+function showAlert(){
+
+let index = Math.floor(Math.random()*names.length);
+
+let name = names[index];
+let city = cities[Math.floor(Math.random()*cities.length)];
+let avatar = avatars[index];
+
+document.getElementById("alertName").innerText = name;
+document.getElementById("alertCity").innerText = city;
+
+document.getElementById("alertAvatar").src = avatar;
+
+let seconds = Math.floor(Math.random()*10)+1;
+
+document.getElementById("alertTime").innerText =
+seconds + " detik lalu";
+
+let alert = document.getElementById("downloadAlert");
+
+alert.style.display="flex";
+
+setTimeout(()=>{
+alert.style.display="none";
+},4500);
+
+}
+
+setInterval(showAlert,7000);
+
+
+/* =========================
+   TESTIMONIAL KOMENTAR
+========================= */
+
+const comments=[
+
+{text:"Ebook ini sangat membantu menaikkan followers saya!",name:"Rudi, Creator"},
+{text:"Strateginya mudah dipahami dan langsung bisa dipraktikkan.",name:"Sari, Blogger"},
+{text:"Saya baru coba 3 hari sudah mulai dapat engagement tinggi.",name:"Andi, Content Creator"},
+{text:"Penjelasannya simpel tapi sangat powerful.",name:"Dewi, Digital Marketer"},
+{text:"Sangat cocok untuk pemula yang ingin sukses di FB Pro.",name:"Fajar, Freelancer"},
+{text:"Panduan ini membuka wawasan saya tentang algoritma Facebook.",name:"Rina, Online Seller"},
+{text:"Tidak menyangka tipsnya sangat praktis dan efektif.",name:"Rahmat, Affiliate Marketer"},
+{text:"Followers saya naik signifikan setelah mengikuti panduan ini.",name:"Ayu, Creator"},
+{text:"Materinya lengkap dan mudah dipahami.",name:"Sinta, Content Writer"},
+{text:"Ini salah satu ebook terbaik tentang Facebook Pro.",name:"Bagus, Social Media Manager"}
+
+];
+
+let commentIndex = 0;
+
+function changeComment(){
+
+document.getElementById("commentText").innerText =
+comments[commentIndex].text;
+
+document.getElementById("commentName").innerText =
+"— " + comments[commentIndex].name;
+
+commentIndex++;
+
+if(commentIndex >= comments.length){
+commentIndex = 0;
+}
+
+}
+
+changeComment();
+
+setInterval(changeComment,4000);
+
+
+/* =========================
+   LIVE VIEWER COUNTER
+========================= */
+
+let viewer = 20;
+
+setInterval(()=>{
+
+viewer += Math.floor(Math.random()*3)-1;
+
+if(viewer < 18) viewer = 18;
+if(viewer > 35) viewer = 35;
+
+document.getElementById("viewerCount").innerText = viewer;
+
+},4000);
+
+
+/* =========================
+   DOWNLOAD COUNTER
+========================= */
+
+let downloadCount = 2384;
+
+setInterval(()=>{
+
+downloadCount += Math.floor(Math.random()*2);
+
+document.getElementById("downloadCount").innerText =
+downloadCount.toLocaleString();
+
+},6000);
+
+
+/* =========================
+   SCROLL REVEAL ANIMATION
+========================= */
+
+function reveal(){
+
+let reveals = document.querySelectorAll(".reveal");
+
+for(let i=0;i<reveals.length;i++){
+
+let windowHeight = window.innerHeight;
+
+let elementTop =
+reveals[i].getBoundingClientRect().top;
+
+let visible = 100;
+
+if(elementTop < windowHeight - visible){
+reveals[i].classList.add("active");
+}
+
+}
+
+}
+
+
+
+
+window.addEventListener("scroll", reveal);
+
+reveal();
+
+window.onclick = function(event){
+let popup = document.getElementById("popup");
+
+if(event.target == popup){
+popup.style.display = "none";
+}
+}
+
+</script>
+
+</body>
+</html>
