@@ -16,7 +16,7 @@ body{
 }
 
 /* =========================
-NAVBAR (SATU SISTEM)
+NAVBAR
 ========================= */
 .navbar{
   display:flex;
@@ -28,6 +28,15 @@ NAVBAR (SATU SISTEM)
   position:sticky;
   top:0;
   z-index:999;
+}
+
+.navContainer{
+  width:100%;
+  max-width:1200px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
 .logo{
@@ -69,7 +78,6 @@ HAMBURGER
   transition:.3s;
 }
 
-/* ACTIVE ANIMATION */
 .hamburger.active span:nth-child(1){
   transform:rotate(45deg) translate(5px,5px);
 }
@@ -92,13 +100,14 @@ MOBILE MENU
   #navMenu{
     position:absolute;
     top:70px;
-    right:0;
+    right:20px;
     width:220px;
     flex-direction:column;
     background:#1a120b;
     display:none;
     border-radius:10px;
     padding:10px 0;
+    box-shadow:0 10px 30px rgba(0,0,0,0.5);
   }
 
   #navMenu.active{
@@ -112,26 +121,7 @@ MOBILE MENU
 }
 
 /* =========================
-HERO GLOBAL
-========================= */
-.hero{
-  text-align:center;
-  padding:120px 20px;
-}
-
-.hero h1{
-  font-size:48px;
-  margin-bottom:20px;
-}
-
-.hero p{
-  max-width:600px;
-  margin:auto;
-  opacity:.85;
-}
-
-/* =========================
-HERO LANDING
+HERO
 ========================= */
 .heroLanding{
   min-height:80vh;
@@ -139,6 +129,22 @@ HERO LANDING
   align-items:center;
   justify-content:center;
   text-align:center;
+}
+
+.heroBox img{
+  width:120px;
+  margin-bottom:20px;
+}
+
+.heroBox h1{
+  font-size:42px;
+  margin-bottom:15px;
+}
+
+.heroBox p{
+  max-width:600px;
+  margin:auto;
+  opacity:.9;
 }
 
 /* =========================
@@ -164,20 +170,11 @@ SECTION
 ========================= */
 section{
   padding:80px 20px;
-  text-align:center;
-}
-
-section h2{
-  margin-bottom:20px;
 }
 
 /* =========================
 ABOUT
 ========================= */
-.aboutSection{
-  padding:80px 20px;
-}
-
 .aboutGrid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -199,81 +196,129 @@ ABOUT
 }
 
 /* =========================
-MARKETPLACE GRID
+FAQ (FIX TOTAL)
 ========================= */
-#ebooks{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:20px;
+.faqSection{
+  max-width:800px;
+  margin:80px auto;
 }
 
-/* CARD */
-.ebook-card{
-  background:#1e293b;
-  padding:15px;
+.faqSection h2{
+  text-align:center;
+  margin-bottom:30px;
+}
+
+/* ITEM */
+.faqItem{
+  margin-bottom:15px;
   border-radius:12px;
+  overflow:hidden;
+  background:#1e293b;
+  box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* QUESTION */
+.faqQuestion{
+  width:100%;
+  padding:16px 20px;
+  background:#111827;
+  color:white;
+  border:none;
+  cursor:pointer;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:15px;
   transition:.3s;
 }
 
-.ebook-card:hover{
-  transform:translateY(-5px);
+.faqQuestion:hover{
+  background:#1f2937;
 }
 
-/* =========================
-LATEST
-========================= */
-#latestEbooks{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:20px;
+.faqQuestion.active{
+  background:#38bdf8;
+  color:black;
 }
 
-.latestCard img{
-  width:100%;
-  border-radius:8px;
+/* ICON */
+.icon{
+  font-size:18px;
+  transition:.3s;
 }
 
-/* =========================
-SLIDER
-========================= */
-.marquee{
+.faqQuestion.active .icon{
+  transform:rotate(45deg);
+}
+
+/* ANSWER */
+.faqAnswer{
+  max-height:0;
   overflow:hidden;
+  background:#0f172a;
+  transition:all .4s ease;
+  padding:0 20px;
+}
+
+.faqAnswer p{
+  margin:15px 0;
+  color:#cbd5e1;
+}
+
+/* =========================
+MARQUEE
+========================= */
+.textSlider{
+  overflow:hidden;
+  background:#020617;
+  padding:20px 0;
+}
+
+.sliderTrack{
+  display:flex;
+  gap:40px;
+  animation:slide 20s linear infinite;
+}
+
+.sliderTrack span{
   white-space:nowrap;
+  font-size:16px;
 }
 
-.marquee div{
-  animation:marquee 15s linear infinite;
-}
-
-@keyframes marquee{
+@keyframes slide{
   0%{transform:translateX(0);}
-  100%{transform:translateX(-100%);}
+  100%{transform:translateX(-50%);}
 }
 
 /* =========================
 POPUP
 ========================= */
-#popup,
-#ebookPopup{
+.popup{
   display:none;
   position:fixed;
   top:0;
   left:0;
   width:100%;
   height:100%;
-  background:rgba(0,0,0,0.8);
+  background:rgba(0,0,0,0.85);
   justify-content:center;
   align-items:center;
   z-index:9999;
 }
 
-.popupBox,
-.popupContent{
+.popupBox{
   background:#1a120b;
-  padding:25px;
-  border-radius:12px;
-  max-width:600px;
+  padding:30px;
+  border-radius:14px;
   width:90%;
+  max-width:500px;
+  text-align:center;
+  animation:popupScale .3s ease;
+}
+
+@keyframes popupScale{
+  from{transform:scale(.8);opacity:0;}
+  to{transform:scale(1);opacity:1;}
 }
 
 /* =========================
@@ -293,7 +338,7 @@ RESPONSIVE
     grid-template-columns:1fr;
   }
 
-  .hero h1{
-    font-size:32px;
+  .heroBox h1{
+    font-size:28px;
   }
 }
